@@ -1,0 +1,2 @@
+- data akan disimpan di json file 
+- 
