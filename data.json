@@ -1,9 +1,0 @@
-{
-    "accessToken":"yJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGllbnRJZCI6ImFzZHBAbG9naXN0aWMtZGV2LmNvbSIsIm5iZiI6MTY5MjMyMTgxMCwiZXhwIjoxNjkyMzMyNjEwLCJpYXQiOjE2OTIzMjE4MDUsImp0aSI6IjUwZGQ3MzM2LWEyZDItNDM2Ny1iNzIxLTkyNGI3YmIwNWQyYSJ9.CKSZUn6kNw465HART3YFqqIh0aWWWKdnN3ym-t1Uv4A",
-    "clientSecret":"875IqHCWPkfCjDXtBHCZngjOtSeFSghxSOYke6drUfVFcIh3cK4xAk48ECIpxISa",
-    "httpMethod":"POST",
-    "relativeUrl":"/demoautentikasipost",
-    "reqBodyJson":"{'id':'1','name':'joko'}", 
-    "timeStamp":"2023-04-03T12:00:00+07:00",
-    "key":"ZTM5MTllYmIyNzg2NDQzNg=="
-}
