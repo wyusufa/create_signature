@@ -1,2 +1,3 @@
-- data akan disimpan di json file 
-- 
+Signature = HMAC_SHA512(signatureSecret, stringToSign)
+
+signatureSecret
