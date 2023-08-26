@@ -1,16 +1,21 @@
 Symmetric encryption
 
+- User get accessToken and clientSecret 
+- User has to create signature 
+- to create signature, User has to have signatureSecret
+- to create signatureSecret, User has to have key 
+- User that doesn't have key will always create wrong signature 
+
 Signature = HMAC_SHA512(signatureSecret, stringToSign)
 
-signatureSecret = AES128-Decrypt(clientSecret,decode-base-64(key))
-    - key = encode-base-64(RandomKey(16 digit alphanumeric))
-    - clientSecret = encode-base-64(RandomKey(32 digit alphanumeric))
+Sequences : 
+1. signatureSecret = RandomKey(32 digit alphanumeric)
+2. key = RandomKey(16 digit alphanumeric)
+3. clientSecret = EncodeBase64(AES128-Encrypt(signatureSecret,key))
+4. signatureSecret = DecodeBase64(AES128-Decrypt(clientSecret,key))
+
 
 StringToSign    = "HTTPMethod":"RelativeUrl":"AccessToken":"SHA-256(minify(RequestBody))":"CURRENT_TIMESTAMP"
-
-AES128 yang digunakan : 
-- CBC
-- 16 bytes 
 
 
 # references 

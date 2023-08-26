@@ -1,10 +1,15 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -26,22 +31,89 @@ func GenerateRandomKey(digit int) string {
 	uuid := uuid.NewString()
 	x := strings.Replace(uuid, "-", "", -1)
 	result := x[0:digit]
-	encodedResult := EncodeBase64(result)
+	log.Print("Random key : ", result)
 	log.Print("End Generate Random Alphanumeric")
-	return encodedResult
+	return result
 }
 
-func AES128Encrypt(clientSecret, decodedKey string) string {
-	//GCM
-	return ""
+func AES128Encrypt(signatureSecret, decodedKey string) string {
+	log.Println("Data to encrypt : ", signatureSecret)
+
+	text := []byte(signatureSecret)
+	key := []byte(decodedKey)
+
+	// generate a new aes cipher using our 32 byte long key
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// gcm or Galois/Counter Mode, is a mode of operation
+	// for symmetric key cryptographic block ciphers
+	// - https://en.wikipedia.org/wiki/Galois/Counter_Mode
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	// populates our nonce with a cryptographically secure
+	// random sequence
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		fmt.Println(err)
+	}
+
+	x := string(gcm.Seal(nonce, nonce, text, nil))
+	return EncodeBase64(x)
 }
 
 func AES128Decrypt(clientSecret, decodedKey string) string {
-	//GCM
-	return ""
+	log.Println("Start AES128Decrypt")
+
+	key := []byte(decodedKey)
+	ciphertext := []byte(DecodeBase64(clientSecret))
+	// if our program was unable to read the file
+	// print out the reason why it can't
+
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		log.Println(err)
+	}
+
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		log.Println(err)
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		log.Println(err)
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Decrypt Result : ", string(plaintext))
+	log.Println("End AES128Decrypt")
+	return string(plaintext)
 }
 
-func HMAC_SHA512(signatureSecret, stringToSign string) string {
+func HMAC_SHA256(signatureSecret, stringToSign string) string {
+
+	secret := signatureSecret
+	data := stringToSign
+
+	h := hmac.New(sha256.New, []byte(secret))
+
+	// Write Data to it
+	h.Write([]byte(data))
+
+	// Get result and encode as hexadecimal string
+	sha := hex.EncodeToString(h.Sum(nil))
+
+	log.Println("Result: " + sha)
 	return ""
 }
 
@@ -95,8 +167,8 @@ func ReadData() Data {
 }
 
 func main() {
-	//data := ReadData()
-	//GenerateStringToSign(data)
-	result := GenerateRandomKey(16)
-	DecodeBase64(result)
+	data := ReadData()
+	clientSecret := AES128Encrypt(GenerateRandomKey(32), DecodeBase64(data.Key))
+	signatureSecret := AES128Decrypt(clientSecret, DecodeBase64(data.Key))
+	HMAC_SHA256(signatureSecret, GenerateStringToSign(data))
 }
