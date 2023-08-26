@@ -8,19 +8,41 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/google/uuid"
 )
 
 func GenerateStringToSign(data Data) string {
-
 	hashedReqBody := Hash256(data.ReqBodyJson)
 	log.Println("hashedReqBody : ", hashedReqBody)
-
 	result := data.HttpMethod + ":" + data.RelativeUrl + ":" + data.AccessToken + ":" + hashedReqBody + data.TimeStamp
-
 	log.Println("StringToSign : ", result)
-	AESDecrypt(data)
-
 	return result
+}
+
+func GenerateRandomKey(digit int) string {
+	log.Print("Start Generate Random Alphanumeric")
+	uuid := uuid.NewString()
+	x := strings.Replace(uuid, "-", "", -1)
+	result := x[0:digit]
+	encodedResult := EncodeBase64(result)
+	log.Print("End Generate Random Alphanumeric")
+	return encodedResult
+}
+
+func AES128Encrypt(clientSecret, decodedKey string) string {
+	//GCM
+	return ""
+}
+
+func AES128Decrypt(clientSecret, decodedKey string) string {
+	//GCM
+	return ""
+}
+
+func HMAC_SHA512(signatureSecret, stringToSign string) string {
+	return ""
 }
 
 func Hash256(reqBodyJson string) string {
@@ -31,40 +53,23 @@ func Hash256(reqBodyJson string) string {
 	return sha1_hash
 }
 
-func AESDecrypt(data Data) string {
-	log.Println("Key sebelum decode base64 : ", data.Key)
-	key, _ := base64.StdEncoding.DecodeString(data.Key)
+func DecodeBase64(x string) string {
+	log.Println("Start DecodeBase64")
+	log.Println("InputData : ", x)
+	decodedByte, _ := base64.StdEncoding.DecodeString(x)
+	decodedString := string(decodedByte)
+	log.Println("DecodedData : ", decodedString)
+	log.Println("End DecodeBase64")
+	return decodedString
+}
 
-	log.Println("Key setelah decode base64(binary) : ", key)
-	log.Println("Key setelah decode base64(string) : ", string(key))
-	// cipher.
-	log.Println("clientSecret : ", data.ClientSecret)
-	log.Println("len clientSecret : ", len(data.ClientSecret))
-	cipherText, _ := base64.StdEncoding.DecodeString(data.ClientSecret)
-	log.Printf("cipherText : %s\n", cipherText)
-
-	//block, _ := aes.NewCipher(key)
-	//log.Printf("block : %s\n", block)
-
-	// if len(cipherText) < aes.BlockSize {
-	// 	log.Println("invalid ciphertext block size")
-	// }
-	// len_data := len([]byte(data.ClientSecret))
-	// datas := []byte(data.ClientSecret)
-	// log.Println(len([]byte(data.ClientSecret)))
-	// decrypted := make([]byte, len([]byte(data.ClientSecret)))
-	// log.Println(decrypted)
-
-	// size := 16
-
-	// for bs, be := 0, size; bs < len_data; bs, be = bs+size, be+size {
-	// 	cipher.Decrypt(decrypted[bs:be], datas[bs:be])
-	// }
-
-	//	log.Println(decrypted)
-	//log.Println(string(decrypted))
-
-	return ""
+func EncodeBase64(x string) string {
+	log.Println("Start EncodedBase64")
+	log.Println("InputData : ", x)
+	encodedString := base64.StdEncoding.EncodeToString([]byte(x))
+	log.Println("EncodedData : ", encodedString)
+	log.Println("End EncodedBase64")
+	return encodedString
 }
 
 func ReadData() Data {
@@ -90,7 +95,8 @@ func ReadData() Data {
 }
 
 func main() {
-	data := ReadData()
-	GenerateStringToSign(data)
-
+	//data := ReadData()
+	//GenerateStringToSign(data)
+	result := GenerateRandomKey(16)
+	DecodeBase64(result)
 }
