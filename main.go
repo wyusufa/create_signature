@@ -20,19 +20,20 @@ import (
 
 func GenerateStringToSign(data Data) string {
 	hashedReqBody := Hash256(data.ReqBodyJson)
-	log.Println("hashedReqBody : ", hashedReqBody)
+	log.Println("Hashed Request Body : ", hashedReqBody)
 	result := data.HttpMethod + ":" + data.RelativeUrl + ":" + data.AccessToken + ":" + hashedReqBody + data.TimeStamp
-	log.Println("StringToSign : ", result)
+	log.Println("String To Sign : ", result)
 	return result
 }
 
 func GenerateRandomKey(digit int) string {
-	log.Print("Start Generate Random Alphanumeric")
+	log.Println("Start Generate Random Alphanumeric")
 	uuid := uuid.NewString()
 	x := strings.Replace(uuid, "-", "", -1)
 	result := x[0:digit]
-	log.Print("Random key : ", result)
-	log.Print("End Generate Random Alphanumeric")
+	log.Println("Random key : ", result)
+	log.Println("digit : ", digit)
+	log.Println("End Generate Random Alphanumeric")
 	return result
 }
 
@@ -72,8 +73,6 @@ func AES128Decrypt(clientSecret, decodedKey string) string {
 
 	key := []byte(decodedKey)
 	ciphertext := []byte(DecodeBase64(clientSecret))
-	// if our program was unable to read the file
-	// print out the reason why it can't
 
 	c, err := aes.NewCipher(key)
 	if err != nil {
@@ -101,7 +100,7 @@ func AES128Decrypt(clientSecret, decodedKey string) string {
 }
 
 func HMAC_SHA256(signatureSecret, stringToSign string) string {
-
+	log.Println("Start Create Signature")
 	secret := signatureSecret
 	data := stringToSign
 
@@ -113,7 +112,8 @@ func HMAC_SHA256(signatureSecret, stringToSign string) string {
 	// Get result and encode as hexadecimal string
 	sha := hex.EncodeToString(h.Sum(nil))
 
-	log.Println("Result: " + sha)
+	log.Println("Signature: " + sha)
+	log.Println("End Create Signature")
 	return ""
 }
 
